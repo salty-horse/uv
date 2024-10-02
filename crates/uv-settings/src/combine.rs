@@ -5,7 +5,7 @@ use url::Url;
 use uv_configuration::{
     ConfigSettings, IndexStrategy, KeyringProviderType, TargetTriple, TrustedPublishing,
 };
-use uv_distribution_types::IndexUrl;
+use uv_distribution_types::{Index, IndexUrl};
 use uv_install_wheel::linker::LinkMode;
 use uv_pypi_types::SupportedEnvironments;
 use uv_python::{PythonDownloads, PythonPreference, PythonVersion};
@@ -72,6 +72,7 @@ macro_rules! impl_combine_or {
 
 impl_combine_or!(AnnotationStyle);
 impl_combine_or!(ExcludeNewer);
+impl_combine_or!(Index);
 impl_combine_or!(IndexStrategy);
 impl_combine_or!(IndexUrl);
 impl_combine_or!(Url);
