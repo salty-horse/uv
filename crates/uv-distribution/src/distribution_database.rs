@@ -424,7 +424,6 @@ impl<'a, Context: BuildContext> DistributionDatabase<'a, Context> {
         hashes: HashPolicy<'_>,
     ) -> Result<ArchiveMetadata, Error> {
         // If the metadata was provided by the user directly, prefer it.
-        println!("source: {:?}", source);
         if let Some(dist) = source.as_dist() {
             if let Some(version) = dist.version() {
                 if let Some(metadata) = self

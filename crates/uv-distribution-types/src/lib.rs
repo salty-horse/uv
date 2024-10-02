@@ -84,7 +84,6 @@ mod resolution;
 mod resolved;
 mod specified_requirement;
 mod traits;
-mod origin;
 
 #[derive(Debug, Clone)]
 pub enum VersionOrUrlRef<'a, T: Pep508Url = VerbatimUrl> {
