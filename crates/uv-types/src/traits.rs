@@ -6,8 +6,8 @@ use anyhow::Result;
 use uv_cache::Cache;
 use uv_configuration::{BuildKind, BuildOptions, BuildOutput, ConfigSettings, SourceStrategy};
 use uv_distribution_types::{
-    CachedDist, DependencyMetadata, IndexCapabilities, IndexLocations, InstalledDist, Resolution,
-    SourceDist,
+    CachedDist, DependencyMetadata, IndexCapabilities, IndexLocations, InstalledDist, NamedIndexes,
+    Resolution, SourceDist,
 };
 use uv_git::GitResolver;
 use uv_pep508::PackageName;
@@ -80,6 +80,9 @@ pub trait BuildContext {
 
     /// The index locations being searched.
     fn index_locations(&self) -> &IndexLocations;
+
+    /// The named indexes available for resolution.
+    fn named_indexes(&self) -> &NamedIndexes;
 
     /// Resolve the given requirements into a ready-to-install set of package versions.
     fn resolve<'a>(

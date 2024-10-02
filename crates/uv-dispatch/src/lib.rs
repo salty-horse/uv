@@ -19,10 +19,7 @@ use uv_configuration::{
 };
 use uv_configuration::{BuildOutput, Concurrency};
 use uv_distribution::DistributionDatabase;
-use uv_distribution_types::{
-    CachedDist, DependencyMetadata, IndexCapabilities, IndexLocations, Name, Resolution,
-    SourceDist, VersionOrUrlRef,
-};
+use uv_distribution_types::{CachedDist, DependencyMetadata, IndexCapabilities, IndexLocations, Name, NamedIndexes, Resolution, SourceDist, VersionOrUrlRef};
 use uv_git::GitResolver;
 use uv_installer::{Installer, Plan, Planner, Preparer, SitePackages};
 use uv_pypi_types::Requirement;
@@ -43,6 +40,7 @@ pub struct BuildDispatch<'a> {
     index_locations: &'a IndexLocations,
     index_strategy: IndexStrategy,
     flat_index: &'a FlatIndex,
+    named_indexes: &'a NamedIndexes,
     index: &'a InMemoryIndex,
     git: &'a GitResolver,
     capabilities: &'a IndexCapabilities,
@@ -68,6 +66,7 @@ impl<'a> BuildDispatch<'a> {
         interpreter: &'a Interpreter,
         index_locations: &'a IndexLocations,
         flat_index: &'a FlatIndex,
+        named_indexes: &'a NamedIndexes,
         dependency_metadata: &'a DependencyMetadata,
         index: &'a InMemoryIndex,
         git: &'a GitResolver,
@@ -90,6 +89,7 @@ impl<'a> BuildDispatch<'a> {
             interpreter,
             index_locations,
             flat_index,
+            named_indexes,
             index,
             git,
             capabilities,
@@ -158,6 +158,10 @@ impl<'a> BuildContext for BuildDispatch<'a> {
 
     fn index_locations(&self) -> &IndexLocations {
         self.index_locations
+    }
+
+    fn named_indexes(&self) -> &NamedIndexes {
+        self.named_indexes
     }
 
     async fn resolve<'data>(&'data self, requirements: &'data [Requirement]) -> Result<Resolution> {

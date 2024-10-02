@@ -1,5 +1,5 @@
 use itertools::Either;
-use rustc_hash::FxHashSet;
+use rustc_hash::{FxHashMap, FxHashSet};
 use std::borrow::Cow;
 use std::fmt::{Display, Formatter};
 use std::ops::Deref;
@@ -367,6 +367,10 @@ impl<'a> IndexUrls {
         self.implicit_indexes().chain(self.default_index())
     }
 }
+
+/// A set of [`Index`] entities indexed by names.
+#[derive(Default, Debug, Clone, PartialEq, Eq)]
+pub struct NamedIndexes(FxHashMap<String, Index>);
 
 /// A map of [`IndexUrl`]s to their capabilities.
 ///

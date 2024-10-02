@@ -3,6 +3,7 @@ use std::str::FromStr;
 use thiserror::Error;
 use url::Url;
 use uv_auth::Credentials;
+use crate::origin::Origin;
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
@@ -52,6 +53,9 @@ pub struct Index {
     /// is given the highest priority when resolving packages.
     #[serde(default)]
     pub default: bool,
+    /// The origin of the index (e.g., a CLI flag, a user-level configuration file, etc.).
+    #[serde(skip)]
+    pub origin: Option<Origin>,
     // /// The type of the index.
     // ///
     // /// Indexes can either be PEP 503-compliant (i.e., a registry implementing the Simple API) or
