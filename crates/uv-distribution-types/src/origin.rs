@@ -7,4 +7,6 @@ pub enum Origin {
     User,
     /// The setting was provided via a project-level configuration file.
     Project,
+    /// The setting was provided via a `requirements.txt` file.
+    RequirementsTxt,
 }

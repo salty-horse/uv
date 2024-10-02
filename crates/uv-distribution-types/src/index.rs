@@ -1,9 +1,11 @@
-use crate::{IndexUrl, IndexUrlError};
 use std::str::FromStr;
+
 use thiserror::Error;
 use url::Url;
 use uv_auth::Credentials;
+
 use crate::origin::Origin;
+use crate::{IndexUrl, IndexUrlError};
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
@@ -85,6 +87,7 @@ impl Index {
             name: None,
             explicit: false,
             default: true,
+            origin: None,
         }
     }
 
@@ -95,6 +98,7 @@ impl Index {
             name: None,
             explicit: false,
             default: false,
+            origin: None,
         }
     }
 
@@ -105,12 +109,24 @@ impl Index {
             name: None,
             explicit: false,
             default: false,
+            origin: None,
         }
+    }
+
+    #[must_use]
+    pub fn with_origin(mut self, origin: Origin) -> Self {
+        self.origin = Some(origin);
+        self
     }
 
     /// Return the [`IndexUrl`] of the index.
     pub fn url(&self) -> &IndexUrl {
         &self.url
+    }
+
+    /// Consume the [`Index`] and return the [`IndexUrl`].
+    pub fn into_url(self) -> IndexUrl {
+        self.url
     }
 
     /// Return the raw [`URL`] of the index.
@@ -149,6 +165,7 @@ impl FromStr for Index {
                     url,
                     explicit: false,
                     default: false,
+                    origin: None,
                 });
             }
         }
@@ -160,6 +177,7 @@ impl FromStr for Index {
             url,
             explicit: false,
             default: false,
+            origin: None,
         })
     }
 }
