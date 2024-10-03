@@ -1952,10 +1952,15 @@ impl From<ResolverOptions> for ResolverSettings {
                     .index
                     .into_iter()
                     .flatten()
-                    .chain(value.extra_index_url.into_iter().flatten())
-                    .chain(value.index_url.into_iter())
+                    .chain(value.extra_index_url.into_iter().flatten().map(Index::from))
+                    .chain(value.index_url.into_iter().map(Index::from))
                     .collect(),
-                value.find_links.into_iter().flatten().collect(),
+                value
+                    .find_links
+                    .into_iter()
+                    .flatten()
+                    .map(Index::from)
+                    .collect(),
                 value.no_index.unwrap_or_default(),
             ),
             resolution: value.resolution.unwrap_or_default(),
@@ -2084,10 +2089,15 @@ impl From<ResolverInstallerOptions> for ResolverInstallerSettings {
                     .index
                     .into_iter()
                     .flatten()
-                    .chain(value.extra_index_url.into_iter().flatten())
-                    .chain(value.index_url.into_iter())
+                    .chain(value.extra_index_url.into_iter().flatten().map(Index::from))
+                    .chain(value.index_url.into_iter().map(Index::from))
                     .collect(),
-                value.find_links.into_iter().flatten().collect(),
+                value
+                    .find_links
+                    .into_iter()
+                    .flatten()
+                    .map(Index::from)
+                    .collect(),
                 value.no_index.unwrap_or_default(),
             ),
             resolution: value.resolution.unwrap_or_default(),
@@ -2305,16 +2315,17 @@ impl PipSettings {
                 args.index
                     .into_iter()
                     .flatten()
-                    .chain(args.extra_index_url.into_iter().flatten())
-                    .chain(args.index_url.into_iter())
+                    .chain(args.extra_index_url.into_iter().flatten().map(Index::from))
+                    .chain(args.index_url.into_iter().map(Index::from))
                     .chain(index.into_iter().flatten())
-                    .chain(extra_index_url.into_iter().flatten())
-                    .chain(index_url.into_iter())
+                    .chain(extra_index_url.into_iter().flatten().map(Index::from))
+                    .chain(index_url.into_iter().map(Index::from))
                     .collect(),
                 args.find_links
                     .combine(find_links)
                     .into_iter()
                     .flatten()
+                    .map(Index::from)
                     .collect(),
                 args.no_index.combine(no_index).unwrap_or_default(),
             ),

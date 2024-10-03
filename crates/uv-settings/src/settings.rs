@@ -1,13 +1,12 @@
-use std::{fmt::Debug, num::NonZeroUsize, path::PathBuf};
-
 use serde::{Deserialize, Serialize};
+use std::{fmt::Debug, num::NonZeroUsize, path::PathBuf};
 use url::Url;
 use uv_cache_info::CacheKey;
 use uv_configuration::{
     ConfigSettings, IndexStrategy, KeyringProviderType, PackageNameSpecifier, TargetTriple,
     TrustedHost, TrustedPublishing,
 };
-use uv_distribution_types::{Index, IndexUrl, StaticMetadata};
+use uv_distribution_types::{Index, PipExtraIndex, PipFindLinks, PipIndex, StaticMetadata};
 use uv_install_wheel::linker::LinkMode;
 use uv_macros::{CombineOptions, OptionsMetadata};
 use uv_normalize::{ExtraName, PackageName};
@@ -231,10 +230,10 @@ pub struct GlobalOptions {
 #[derive(Debug, Clone, Default, CombineOptions)]
 pub struct InstallerOptions {
     pub index: Option<Vec<Index>>,
-    pub index_url: Option<Index>,
-    pub extra_index_url: Option<Vec<Index>>,
+    pub index_url: Option<PipIndex>,
+    pub extra_index_url: Option<Vec<PipExtraIndex>>,
     pub no_index: Option<bool>,
-    pub find_links: Option<Vec<Index>>,
+    pub find_links: Option<Vec<PipFindLinks>>,
     pub index_strategy: Option<IndexStrategy>,
     pub keyring_provider: Option<KeyringProviderType>,
     pub allow_insecure_host: Option<Vec<TrustedHost>>,
@@ -256,10 +255,10 @@ pub struct InstallerOptions {
 #[derive(Debug, Clone, Default, CombineOptions)]
 pub struct ResolverOptions {
     pub index: Option<Vec<Index>>,
-    pub index_url: Option<Index>,
-    pub extra_index_url: Option<Vec<Index>>,
+    pub index_url: Option<PipIndex>,
+    pub extra_index_url: Option<Vec<PipExtraIndex>>,
     pub no_index: Option<bool>,
-    pub find_links: Option<Vec<Index>>,
+    pub find_links: Option<Vec<PipFindLinks>>,
     pub index_strategy: Option<IndexStrategy>,
     pub keyring_provider: Option<KeyringProviderType>,
     pub allow_insecure_host: Option<Vec<TrustedHost>>,
@@ -339,7 +338,7 @@ pub struct ResolverInstallerOptions {
             index-url = "https://test.pypi.org/simple"
         "#
     )]
-    pub index_url: Option<Index>,
+    pub index_url: Option<PipIndex>,
     /// Extra URLs of package indexes to use, in addition to `--index-url`.
     ///
     /// Accepts either a repository compliant with [PEP 503](https://peps.python.org/pep-0503/)
@@ -360,7 +359,7 @@ pub struct ResolverInstallerOptions {
             extra-index-url = ["https://download.pytorch.org/whl/cpu"]
         "#
     )]
-    pub extra_index_url: Option<Vec<Index>>,
+    pub extra_index_url: Option<Vec<PipExtraIndex>>,
     /// Ignore all registry indexes (e.g., PyPI), instead relying on direct URL dependencies and
     /// those provided via `--find-links`.
     #[option(
@@ -386,7 +385,7 @@ pub struct ResolverInstallerOptions {
             find-links = ["https://download.pytorch.org/whl/torch_stable.html"]
         "#
     )]
-    pub find_links: Option<Vec<Index>>,
+    pub find_links: Option<Vec<PipFindLinks>>,
     /// The strategy to use when resolving against multiple index URLs.
     ///
     /// By default, uv will stop at the first index on which a given package is available, and
@@ -654,29 +653,6 @@ pub struct ResolverInstallerOptions {
     pub no_binary_package: Option<Vec<PackageName>>,
 }
 
-fn deserialize_index_url<'de, D>(deserializer: D) -> Result<Option<Index>, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    Option::<IndexUrl>::deserialize(deserializer).map(|value| value.map(Index::from_index_url))
-}
-
-fn deserialize_extra_index_url<'de, D>(deserializer: D) -> Result<Option<Vec<Index>>, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    Option::<Vec<IndexUrl>>::deserialize(deserializer)
-        .map(|values| values.map(|value| value.into_iter().map(Index::from_index_url).collect()))
-}
-
-fn deserialize_find_links<'de, D>(deserializer: D) -> Result<Option<Vec<Index>>, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    Option::<Vec<IndexUrl>>::deserialize(deserializer)
-        .map(|values| values.map(|value| value.into_iter().map(Index::from_find_links).collect()))
-}
-
 /// Settings that are specific to the `uv pip` command-line interface.
 ///
 /// These values will be ignored when running commands outside the `uv pip` namespace (e.g.,
@@ -777,9 +753,7 @@ pub struct PipOptions {
             index-url = "https://test.pypi.org/simple"
         "#
     )]
-    #[cfg_attr(feature = "schemars", schemars(inner(with = "IndexUrl")))]
-    #[serde(default, deserialize_with = "deserialize_index_url")]
-    pub index_url: Option<Index>,
+    pub index_url: Option<PipIndex>,
     /// Extra URLs of package indexes to use, in addition to `--index-url`.
     ///
     /// Accepts either a repository compliant with [PEP 503](https://peps.python.org/pep-0503/)
@@ -797,9 +771,7 @@ pub struct PipOptions {
             extra-index-url = ["https://download.pytorch.org/whl/cpu"]
         "#
     )]
-    #[serde(default, deserialize_with = "deserialize_extra_index_url")]
-    #[cfg_attr(feature = "schemars", schemars(inner(with = "IndexUrl")))]
-    pub extra_index_url: Option<Vec<Index>>,
+    pub extra_index_url: Option<Vec<PipExtraIndex>>,
     /// Ignore all registry indexes (e.g., PyPI), instead relying on direct URL dependencies and
     /// those provided via `--find-links`.
     #[option(
@@ -825,9 +797,7 @@ pub struct PipOptions {
             find-links = ["https://download.pytorch.org/whl/torch_stable.html"]
         "#
     )]
-    #[serde(default, deserialize_with = "deserialize_find_links")]
-    #[cfg_attr(feature = "schemars", schemars(inner(with = "IndexUrl")))]
-    pub find_links: Option<Vec<Index>>,
+    pub find_links: Option<Vec<PipFindLinks>>,
     /// The strategy to use when resolving against multiple index URLs.
     ///
     /// By default, uv will stop at the first index on which a given package is available, and
@@ -1440,10 +1410,10 @@ impl From<ResolverInstallerOptions> for InstallerOptions {
 #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 pub struct ToolOptions {
     pub index: Option<Vec<Index>>,
-    pub index_url: Option<Index>,
-    pub extra_index_url: Option<Vec<Index>>,
+    pub index_url: Option<PipIndex>,
+    pub extra_index_url: Option<Vec<PipExtraIndex>>,
     pub no_index: Option<bool>,
-    pub find_links: Option<Vec<Index>>,
+    pub find_links: Option<Vec<PipFindLinks>>,
     pub index_strategy: Option<IndexStrategy>,
     pub keyring_provider: Option<KeyringProviderType>,
     pub allow_insecure_host: Option<Vec<TrustedHost>>,
@@ -1546,10 +1516,10 @@ pub struct OptionsWire {
     // #[serde(flatten)]
     // top_level: ResolverInstallerOptions
     index: Option<Vec<Index>>,
-    index_url: Option<IndexUrl>,
-    extra_index_url: Option<Vec<IndexUrl>>,
+    index_url: Option<PipIndex>,
+    extra_index_url: Option<Vec<PipExtraIndex>>,
     no_index: Option<bool>,
-    find_links: Option<Vec<IndexUrl>>,
+    find_links: Option<Vec<PipFindLinks>>,
     index_strategy: Option<IndexStrategy>,
     keyring_provider: Option<KeyringProviderType>,
     allow_insecure_host: Option<Vec<TrustedHost>>,
@@ -1668,12 +1638,10 @@ impl From<OptionsWire> for Options {
             },
             top_level: ResolverInstallerOptions {
                 index,
+                index_url,
+                extra_index_url,
                 no_index,
-                index_url: index_url.map(Index::from_index_url),
-                extra_index_url: extra_index_url
-                    .map(|urls| urls.into_iter().map(Index::from_extra_index_url).collect()),
-                find_links: find_links
-                    .map(|urls| urls.into_iter().map(Index::from_find_links).collect()),
+                find_links,
                 index_strategy,
                 keyring_provider,
                 allow_insecure_host,

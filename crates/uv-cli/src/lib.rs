@@ -14,7 +14,7 @@ use uv_configuration::{
     ConfigSettingEntry, ExportFormat, IndexStrategy, KeyringProviderType, PackageNameSpecifier,
     TargetTriple, TrustedHost, TrustedPublishing, VersionControlSystem,
 };
-use uv_distribution_types::{Index, IndexUrl, Origin};
+use uv_distribution_types::{Index, IndexUrl, Origin, PipExtraIndex, PipFindLinks, PipIndex};
 use uv_normalize::{ExtraName, PackageName};
 use uv_pep508::Requirement;
 use uv_pypi_types::VerbatimParsedUrl;
@@ -772,48 +772,54 @@ impl<T> Maybe<T> {
     }
 }
 
-/// Parse an `--index-url` argument into an [`Index`], mapping the empty string to `None`.
-fn parse_index_url(input: &str) -> Result<Maybe<Index>, String> {
+/// Parse an `--index-url` argument into an [`PipIndex`], mapping the empty string to `None`.
+fn parse_index_url(input: &str) -> Result<Maybe<PipIndex>, String> {
     if input.is_empty() {
         Ok(Maybe::None)
     } else {
-        match IndexUrl::from_str(input).map(Index::from_index_url) {
-            Ok(index) => Ok(Maybe::Some(Index {
+        IndexUrl::from_str(input)
+            .map(Index::from_index_url)
+            .map(|index| Index {
                 origin: Some(Origin::Cli),
                 ..index
-            })),
-            Err(err) => Err(err.to_string()),
-        }
+            })
+            .map(PipIndex::from)
+            .map(Maybe::Some)
+            .map_err(|err| err.to_string())
     }
 }
 
-/// Parse an `--extra-index-url` argument into an [`Index`], mapping the empty string to `None`.
-fn parse_extra_index_url(input: &str) -> Result<Maybe<Index>, String> {
+/// Parse an `--extra-index-url` argument into an [`PipExtraIndex`], mapping the empty string to `None`.
+fn parse_extra_index_url(input: &str) -> Result<Maybe<PipExtraIndex>, String> {
     if input.is_empty() {
         Ok(Maybe::None)
     } else {
-        match IndexUrl::from_str(input).map(Index::from_extra_index_url) {
-            Ok(index) => Ok(Maybe::Some(Index {
+        IndexUrl::from_str(input)
+            .map(Index::from_extra_index_url)
+            .map(|index| Index {
                 origin: Some(Origin::Cli),
                 ..index
-            })),
-            Err(err) => Err(err.to_string()),
-        }
+            })
+            .map(PipExtraIndex::from)
+            .map(Maybe::Some)
+            .map_err(|err| err.to_string())
     }
 }
 
-/// Parse a `--find-links` argument into an [`Index`], mapping the empty string to `None`.
-fn parse_find_links(input: &str) -> Result<Maybe<Index>, String> {
+/// Parse a `--find-links` argument into an [`PipFindLinks`], mapping the empty string to `None`.
+fn parse_find_links(input: &str) -> Result<Maybe<PipFindLinks>, String> {
     if input.is_empty() {
         Ok(Maybe::None)
     } else {
-        match IndexUrl::from_str(input).map(Index::from_find_links) {
-            Ok(index) => Ok(Maybe::Some(Index {
+        IndexUrl::from_str(input)
+            .map(Index::from_find_links)
+            .map(|index| Index {
                 origin: Some(Origin::Cli),
                 ..index
-            })),
-            Err(err) => Err(err.to_string()),
-        }
+            })
+            .map(PipFindLinks::from)
+            .map(Maybe::Some)
+            .map_err(|err| err.to_string())
     }
 }
 
@@ -3800,7 +3806,7 @@ pub struct IndexArgs {
     /// The index given by this flag is given lower priority than all other
     /// indexes specified via the `--extra-index-url` flag.
     #[arg(long, short, env = "UV_INDEX_URL", value_parser = parse_index_url, help_heading = "Index options")]
-    pub index_url: Option<Maybe<Index>>,
+    pub index_url: Option<Maybe<PipIndex>>,
 
     /// (Deprecated: use `--index` instead) Extra URLs of package indexes to use, in addition to `--index-url`.
     ///
@@ -3811,7 +3817,7 @@ pub struct IndexArgs {
     /// `--index-url` (which defaults to PyPI). When multiple `--extra-index-url` flags are
     /// provided, earlier values take priority.
     #[arg(long, env = "UV_EXTRA_INDEX_URL", value_delimiter = ' ', value_parser = parse_extra_index_url, help_heading = "Index options")]
-    pub extra_index_url: Option<Vec<Maybe<Index>>>,
+    pub extra_index_url: Option<Vec<Maybe<PipExtraIndex>>>,
 
     /// Locations to search for candidate distributions, in addition to those found in the registry
     /// indexes.
@@ -3822,7 +3828,7 @@ pub struct IndexArgs {
     /// If a URL, the page must contain a flat list of links to package files adhering to the
     /// formats described above.
     #[arg(long, short, value_parser = parse_find_links, help_heading = "Index options")]
-    pub find_links: Option<Vec<Maybe<Index>>>,
+    pub find_links: Option<Vec<Maybe<PipFindLinks>>>,
 
     /// Ignore the registry index (e.g., PyPI), instead relying on direct URL dependencies and those
     /// provided via `--find-links`.

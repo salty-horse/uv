@@ -134,7 +134,7 @@
         "null"
       ],
       "items": {
-        "$ref": "#/definitions/Index"
+        "$ref": "#/definitions/IndexUrl"
       }
     },
     "find-links": {
@@ -144,7 +144,7 @@
         "null"
       ],
       "items": {
-        "$ref": "#/definitions/Index"
+        "$ref": "#/definitions/IndexUrl"
       }
     },
     "index": {
@@ -172,7 +172,7 @@
       "description": "The URL of the Python package index (by default: <https://pypi.org/simple>).\n\nAccepts either a repository compliant with [PEP 503](https://peps.python.org/pep-0503/) (the simple repository API), or a local directory laid out in the same format.\n\nThe index provided by this setting is given lower priority than any indexes specified via [`extra_index_url`](#extra-index-url) or [`index`](#index).\n\n(Deprecated: use `index` instead.)",
       "anyOf": [
         {
-          "$ref": "#/definitions/Index"
+          "$ref": "#/definitions/IndexUrl"
         },
         {
           "type": "null"
@@ -816,24 +816,22 @@
         },
         "extra-index-url": {
           "description": "Extra URLs of package indexes to use, in addition to `--index-url`.\n\nAccepts either a repository compliant with [PEP 503](https://peps.python.org/pep-0503/) (the simple repository API), or a local directory laid out in the same format.\n\nAll indexes provided via this flag take priority over the index specified by [`index_url`](#index-url). When multiple indexes are provided, earlier values take priority.\n\nTo control uv's resolution strategy when multiple indexes are present, see [`index_strategy`](#index-strategy).",
-          "default": null,
           "type": [
             "array",
             "null"
           ],
           "items": {
-            "$ref": "#/definitions/Index"
+            "$ref": "#/definitions/IndexUrl"
           }
         },
         "find-links": {
           "description": "Locations to search for candidate distributions, in addition to those found in the registry indexes.\n\nIf a path, the target must be a directory that contains packages as wheel files (`.whl`) or source distributions (e.g., `.tar.gz` or `.zip`) at the top level.\n\nIf a URL, the page must contain a flat list of links to package files adhering to the formats described above.",
-          "default": null,
           "type": [
             "array",
             "null"
           ],
           "items": {
-            "$ref": "#/definitions/Index"
+            "$ref": "#/definitions/IndexUrl"
           }
         },
         "generate-hashes": {
@@ -856,10 +854,9 @@
         },
         "index-url": {
           "description": "The URL of the Python package index (by default: <https://pypi.org/simple>).\n\nAccepts either a repository compliant with [PEP 503](https://peps.python.org/pep-0503/) (the simple repository API), or a local directory laid out in the same format.\n\nThe index provided by this setting is given lower priority than any indexes specified via [`extra_index_url`](#extra-index-url).",
-          "default": null,
           "anyOf": [
             {
-              "$ref": "#/definitions/Index"
+              "$ref": "#/definitions/IndexUrl"
             },
             {
               "type": "null"

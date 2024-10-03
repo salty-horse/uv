@@ -1,5 +1,4 @@
 use std::str::FromStr;
-
 use thiserror::Error;
 use url::Url;
 use uv_auth::Credentials;
@@ -113,6 +112,7 @@ impl Index {
         }
     }
 
+    /// Set the [`Origin`] of the index.
     #[must_use]
     pub fn with_origin(mut self, origin: Origin) -> Self {
         self.origin = Some(origin);

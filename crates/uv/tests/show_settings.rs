@@ -1043,7 +1043,7 @@ fn resolve_index_url() -> anyhow::Result<()> {
                             },
                         ),
                         explicit: false,
-                        default: true,
+                        default: false,
                         origin: None,
                     },
                     Index {
@@ -1250,7 +1250,7 @@ fn resolve_index_url() -> anyhow::Result<()> {
                             },
                         ),
                         explicit: false,
-                        default: true,
+                        default: false,
                         origin: None,
                     },
                     Index {
@@ -1756,7 +1756,7 @@ fn resolve_top_level() -> anyhow::Result<()> {
                             },
                         ),
                         explicit: false,
-                        default: true,
+                        default: false,
                         origin: None,
                     },
                     Index {
@@ -1931,7 +1931,7 @@ fn resolve_top_level() -> anyhow::Result<()> {
                             },
                         ),
                         explicit: false,
-                        default: true,
+                        default: false,
                         origin: None,
                     },
                     Index {
