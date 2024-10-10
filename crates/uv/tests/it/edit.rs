@@ -4076,8 +4076,12 @@ fn add_group() -> Result<()> {
     ----- stdout -----
 
     ----- stderr -----
-    Resolved 1 package in [TIME]
-    Audited in [TIME]
+    Resolved 4 packages in [TIME]
+    Prepared 3 packages in [TIME]
+    Installed 3 packages in [TIME]
+     + anyio==3.7.0
+     + idna==3.6
+     + sniffio==1.3.1
     "###);
 
     let pyproject_toml = context.read("pyproject.toml");
@@ -4107,8 +4111,13 @@ fn add_group() -> Result<()> {
     ----- stdout -----
 
     ----- stderr -----
-    Resolved 1 package in [TIME]
-    Audited in [TIME]
+    Resolved 10 packages in [TIME]
+    Prepared 4 packages in [TIME]
+    Installed 4 packages in [TIME]
+     + attrs==23.2.0
+     + outcome==1.3.0.post0
+     + sortedcontainers==2.4.0
+     + trio==0.25.0
     "###);
 
     let pyproject_toml = context.read("pyproject.toml");
@@ -4127,7 +4136,7 @@ fn add_group() -> Result<()> {
         [dependency-groups]
         test = [
             "anyio==3.7.0",
-            "trio",
+            "trio>=0.25.0",
         ]
         "###
         );
@@ -4139,8 +4148,8 @@ fn add_group() -> Result<()> {
     ----- stdout -----
 
     ----- stderr -----
-    Resolved 1 package in [TIME]
-    Audited in [TIME]
+    Resolved 10 packages in [TIME]
+    Audited 3 packages in [TIME]
     "###);
 
     let pyproject_toml = context.read("pyproject.toml");
@@ -4159,7 +4168,7 @@ fn add_group() -> Result<()> {
         [dependency-groups]
         test = [
             "anyio==3.7.0",
-            "trio",
+            "trio>=0.25.0",
         ]
         second = [
             "anyio==3.7.0",
